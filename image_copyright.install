@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the image_copyright module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function image_copyright_install() {
+  // Створюємо таблицю для збереження айді файла зображення та тексту копірайту.
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists('image_copyright')) {
+    $schema->createTable('image_copyright', [
+      'fields' => [
+        'fid' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'copyright' => [
+          'type' => 'text',
+          'size' => 'normal',
+        ],
+      ],
+      'primary key' => ['fid'],
+    ]);
+  } else {
+    \Drupal::messenger()->addMessage(t('The "image_copyright" table already exists. Skipping table creation.'), 'status');
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function image_copyright_uninstall() {
+  // Отримуємо конфігурацію, щоб перевірити, чи користувач хоче видалити таблицю.
+  $config = \Drupal::configFactory()->getEditable('image_copyright.settings');
+  if ($config->get('delete_table')) {
+    // Видаляємо таблицю, якщо налаштування дозволяє.
+    \Drupal::database()->schema()->dropTable('image_copyright');
+  }
+}

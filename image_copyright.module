@@ -1,0 +1,137 @@
+<?php
+
+use Drupal\node\Entity\Node;
+use Drupal\Core\Render\Markup;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\views\ViewExecutable;
+
+
+/**
+ * Implements hook_preprocess_HOOK() for node templates.
+ */
+function image_copyright_preprocess_node(&$variables) {
+  // Get the current node ID.
+  // $nid = \Drupal::routeMatch()->getParameter('node')->id();
+  $route_match = \Drupal::service('current_route_match');
+  $nid = $route_match->getParameter('node')->id();
+
+  $node = Node::load($nid);
+
+  // Check if node exists and has the 'field_image'.
+  if (!$node->hasField('field_image')) {
+    // Поле field_image не існує у даній ноді.
+    return;
+  }
+  // Get node's image field value.
+  $image = $node->get('field_image')->getValue();
+
+  // Check if there is a value in the Image field (field_image)
+  if (!empty($image)) {
+    $image_fid = $image[0]['target_id'];
+    if ($image_fid) {
+
+      // Query the database for the copyright record.
+      $record = \Drupal::database()->select('image_copyright')
+        ->fields('image_copyright', ['copyright'])
+        ->condition('fid', $image_fid)
+        ->execute()
+        ->fetchField();
+
+      if ($record) {
+        $markup = new FormattableMarkup(
+          '<small class="copyright">@label&copy;: @record</small>',
+          [
+            '@label' => t('Image'),
+            '@record' => Markup::create($record),
+          ]
+        );
+        // Add copyright text to variables for use in the template.
+        $variables['image_copyright'] = [
+          '#markup' => $markup,
+          '#allowed_tags' => ['a', 'small', 'em', 'strong'], // List allowed tags
+        ];
+      }
+
+    }
+
+  }
+}
+
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * Adds a custom field to the 'files' view if it does not already exist.
+ *
+ * @param \Drupal\views\ViewExecutable $view
+ *   The view being processed.
+ * @param string $display_id
+ *   The ID of the display.
+ * @param array &$args
+ *   An array of arguments.
+ */
+function image_copyright_views_pre_view(ViewExecutable $view, $display_id, array &$args) {
+  // Check if the view is 'files' and the display is 'page_1'.
+  if ($view->id() === 'files' && $display_id === 'page_1') {
+    // Get current fields in the view.
+    $fields = $view->display_handler->getOption('fields');
+
+    // Add the custom field if it does not exist.
+    if (!isset($fields['nothing'])) {
+      $fields['nothing'] = [
+        'id' => 'nothing',
+        'table' => 'views',
+        'field' => 'nothing',
+        'relationship' => 'none',
+        'group_type' => 'group',
+        'admin_label' => '',
+        'plugin_id' => 'custom',
+        'label' => '©',
+        'exclude' => false,
+        'alter' => [
+          'alter_text' => true,
+          'text' => '<a href="/admin/config/media/copyright/{{fid}}" title="Image Copyright">&copy;</a>',
+          'make_link' => false,
+          'path' => '',
+          'absolute' => false,
+          'external' => false,
+          'replace_spaces' => false,
+          'path_case' => 'none',
+          'trim_whitespace' => false,
+          'alt' => '',
+          'rel' => '',
+          'link_class' => '',
+          'prefix' => '',
+          'suffix' => '',
+          'target' => '',
+          'nl2br' => false,
+          'max_length' => 0,
+          'word_boundary' => true,
+          'ellipsis' => true,
+          'more_link' => false,
+          'more_link_text' => '',
+          'more_link_path' => '',
+          'strip_tags' => false,
+          'trim' => false,
+          'preserve_tags' => '',
+          'html' => false,
+        ],
+        'element_type' => '',
+        'element_class' => '',
+        'element_label_type' => '',
+        'element_label_class' => '',
+        'element_label_colon' => true,
+        'element_wrapper_type' => '',
+        'element_wrapper_class' => '',
+        'element_default_classes' => true,
+        'empty' => '',
+        'hide_empty' => false,
+        'empty_zero' => false,
+        'hide_alter_empty' => false,
+      ];
+
+      // Set the updated fields to the view.
+      $view->display_handler->setOption('fields', $fields);
+    }
+  }
+}

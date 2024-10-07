@@ -1,0 +1,11 @@
+name: 'Image Copyright'
+type: module
+description: 'Store and display copyright text for images.'
+package: Custom
+core_version_requirement: ^9 || ^10
+configure: image_copyright.settings
+dependencies:
+  - drupal:file
+  - drupal:filter
+  - drupal:views
+version: '1.0.0-beta2'

@@ -1,0 +1,7 @@
+image_copyright.settings:
+  title: 'Image Copyright Uninslall Settings'
+  description: 'Configure whether to delete the "image_copyright" table upon uninstall.'
+  route_name: image_copyright.settings
+  parent: system.admin_config_media
+  weight: 100
+

@@ -1,0 +1,25 @@
+image_copyright.display:
+  path: '/admin/config/media/copyright/{fid}'
+  defaults:
+    _controller: '\Drupal\image_copyright\Controller\ImageCopyrightController::display'
+    _title: 'Image Copyright'
+  requirements:
+    _permission: 'administer site configuration'
+    fid: \d+
+
+copyright.form:
+  path: '/admin/config/media/copyright/{fid}/edit'
+  defaults:
+    _form: '\Drupal\image_copyright\Form\ImageCopyrightForm'
+    _title: 'Edit Copyright Text'
+  requirements:
+    _permission: 'administer site configuration'
+    fid: \d+
+
+image_copyright.settings:
+  path: '/admin/config/media/image-copyright'
+  defaults:
+    _form: '\Drupal\image_copyright\Form\ImageCopyrightUninstallForm'
+    _title: 'Image Copyright Uninslall Settings'
+  requirements:
+    _permission: 'administer site configuration'
