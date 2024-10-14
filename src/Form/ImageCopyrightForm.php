@@ -44,14 +44,6 @@ class ImageCopyrightForm extends FormBase {
         (for not ours)↓<br>Owner &lt;a href="https://site.com" target="_blank" rel="nofollow noopener"&gt;Site.com&lt;/a&gt;</small>',
     ];
 
-    $form['copyright'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Copyright Text'),
-      '#default_value' => $default_value,
-      '#required' => TRUE,
-    ];
-
-
     // Додаємо елементи форми для редагування тексту копірайтів.
     $form['copyright'] = [
       '#type' => 'textarea',
