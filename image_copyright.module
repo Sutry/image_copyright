@@ -75,9 +75,17 @@ function image_copyright_views_pre_view(ViewExecutable $view, $display_id, array
   if ($view->id() === 'files' && $display_id === 'page_1') {
     // Get current fields in the view.
     $fields = $view->display_handler->getOption('fields');
-
     // Add the custom field if it does not exist.
     if (!isset($fields['nothing'])) {
+
+      // // Отримуємо поточну мову та префікс.
+      $prefixes = \Drupal::config('language.negotiation')->get('url.prefixes');
+      if ($prefixes) { // or ->get('url.subdomains') if languages on subdomains
+        $language = \Drupal::languageManager()->getCurrentLanguage();
+        $language_prefix = $prefixes[$language->getId()];
+        $language_prefix = ($language_prefix? $language_prefix . '/' : '');
+      }
+
       $fields['nothing'] = [
         'id' => 'nothing',
         'table' => 'views',
@@ -90,7 +98,7 @@ function image_copyright_views_pre_view(ViewExecutable $view, $display_id, array
         'exclude' => false,
         'alter' => [
           'alter_text' => true,
-          'text' => '<a href="/admin/config/media/copyright/{{fid}}" title="Image Copyright">&copy;</a>',
+          'text' => '<a href="/' . $language_prefix . 'admin/config/media/copyright/{{fid}}" title="Image Copyright">&copy;</a>',
           'make_link' => false,
           'path' => '',
           'absolute' => false,
